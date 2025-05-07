@@ -96,13 +96,16 @@ int main(int argc, char **argv) {
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);  
     
+    // Initialize objects
+    initializeObjects();
+
     // Event loop
     while(!glfwWindowShouldClose(window))
     {
         processInput(window);
         glfwSwapBuffers(window);
         glfwPollEvents();
-        // renderSimulation();
+        renderSimulation(shaderProgram);
     }
   
     glfwTerminate();
