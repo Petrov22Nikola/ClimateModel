@@ -2,4 +2,5 @@
 #include <GLFW/glfw3.h>
 
 // Render Earth & associated objects
-void renderSimulation();
+void renderSimulation(unsigned int shaderProgram);
+void initializeObjects();
