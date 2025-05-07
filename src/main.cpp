@@ -102,10 +102,12 @@ int main(int argc, char **argv) {
     // Event loop
     while(!glfwWindowShouldClose(window))
     {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f );
+        glClear(GL_COLOR_BUFFER_BIT);
         processInput(window);
-        glfwSwapBuffers(window);
         glfwPollEvents();
         renderSimulation(shaderProgram);
+        glfwSwapBuffers(window);
     }
   
     glfwTerminate();
