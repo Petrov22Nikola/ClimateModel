@@ -2,6 +2,7 @@
 #include <fstream>
 
 #include <core/fileReader.h>
+#include <core/dataScanner.h>
 #include <renderLogic/render.h>
 
 // Globals
@@ -98,6 +99,9 @@ int main(int argc, char **argv) {
     
     // Initialize objects
     initializeObjects();
+
+    // Data collection
+    initializeData();
 
     // Event loop
     while(!glfwWindowShouldClose(window))

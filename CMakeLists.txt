@@ -17,8 +17,10 @@ target_include_directories(glad PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
 set(SOURCES 
   src/main.cpp
   src/renderLogic/render.cpp
-  src/fileReader.cpp)
+  src/fileReader.cpp
+  src/dataScanner.cpp)
 add_executable(Simulation ${SOURCES})
 target_include_directories(Simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
-find_package(OpenGL REQUIRED) 
-target_link_libraries(Simulation glad glfw3 OpenGL::GL)
+find_package(OpenGL REQUIRED)
+find_package(CURL CONFIG REQUIRED)
+target_link_libraries(Simulation glad glfw3 CURL::libcurl OpenGL::GL)
