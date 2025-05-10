@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <renderLogic/render.h>
+#include <renderLogic/stb_image.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
