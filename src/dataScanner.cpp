@@ -8,7 +8,7 @@
 
 #include <core/dataScanner.h>
 
-const int epochTime = 1900;
+const int epochTime = 1900, monthOffset = 1;
 
 // Curl thermal PNG received data write callback
 size_t thermal_write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
@@ -40,7 +40,7 @@ void thermalData(tm date) {
         << "&LAYERS=MODIS_Terra_Land_Surface_Temp_Day"
         << "&TIME="
         << (epochTime + date.tm_year) << "-"
-        << std::setw(2) << std::setfill('0') << (1 + date.tm_mon) << "-"
+        << std::setw(2) << std::setfill('0') << (monthOffset + date.tm_mon) << "-"
         << std::setw(2) << std::setfill('0') << date.tm_mday
         << "&CRS=EPSG:4326"
         << "&BBOX=-90,-180,90,180"
