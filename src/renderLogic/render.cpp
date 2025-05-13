@@ -13,6 +13,7 @@ constexpr int longitudinalDivisor = 18;
 constexpr int latitudinalDivisor = 18;
 constexpr int dimensionality = 3;
 constexpr float PI = 3.14f;
+constexpr float longitudeCorrection = -90.0f;
 
 // Planet
 std::vector<float> planetVertices;
@@ -139,11 +140,13 @@ void initializeObjects() {
     stbi_image_free(physData);
 }
 
-void renderSimulation(unsigned int shaderProgram) {
+void renderSimulation(unsigned int shaderProgram, Coords cityCoords) {
     // Render planet
     glUseProgram(shaderProgram);
     glm::mat4 mvp(1.0f);
-    mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
+    // mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
+    mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
+    mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
     GLuint mvpMatrix = glGetUniformLocation(shaderProgram, "MVP");
     glUniformMatrix4fv(mvpMatrix, 1, GL_FALSE, &mvp[0][0]);
     glActiveTexture(GL_TEXTURE0);

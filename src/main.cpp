@@ -101,7 +101,7 @@ int main(int argc, char **argv) {
     initializeObjects();
 
     // Data collection
-    initializeData();
+    auto cityCoords = initializeData();
 
     // Event loop
     while(!glfwWindowShouldClose(window))
@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
         glClear(GL_COLOR_BUFFER_BIT);
         processInput(window);
         glfwPollEvents();
-        renderSimulation(shaderProgram);
+        renderSimulation(shaderProgram, cityCoords);
         glfwSwapBuffers(window);
     }
   
