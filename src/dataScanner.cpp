@@ -143,7 +143,7 @@ void initializeData() {
     struct tm datetime = *localtime(&timestamp);
     thermalData(datetime);
     auto cityMap = initCityCoords();
-    auto cityCoords = cityMap["Oakville"];
-    std::cout << "Oakville: " << cityCoords.latitude << " " << cityCoords.longitude << std::endl;
+    auto cityCoords = cityMap["Oakville Canada"];
+    std::cout << "Oakville Canada: " << cityCoords.latitude << " " << cityCoords.longitude << std::endl;
     localeWeatherData(cityCoords.latitude, cityCoords.longitude); // Oakville
 }

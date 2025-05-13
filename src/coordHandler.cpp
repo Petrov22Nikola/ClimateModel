@@ -13,7 +13,7 @@ std::unordered_map<std::string, Coords> initCityCoords() {
     std::string contents = extractFileContents(dataPath);
     bool openBracket = false, init = true;
     int numBrackets = 0;
-    std::string input = "", city = "", latitude = "", longitude = "";
+    std::string input = "", city = "", country = "", latitude = "", longitude = "";
     for (int i = 0; i < contents.size(); ++i) {
         char c = contents[i];
         if (init && c != '\n') continue;
@@ -29,11 +29,12 @@ std::unordered_map<std::string, Coords> initCityCoords() {
                 if (numBrackets == 2) city = input;
                 else if (numBrackets == 6) latitude = input;
                 else if (numBrackets == 8) longitude = input;
+                else if (numBrackets == 10) country = input;
                 break;
             }
             case '\n': {
                 Coords cityCoords = {std::stod(latitude), std::stod(longitude)};
-                cityMap[city] = cityCoords;
+                cityMap[city + " " + country] = cityCoords;
                 numBrackets = 0;
             }
             default: {
