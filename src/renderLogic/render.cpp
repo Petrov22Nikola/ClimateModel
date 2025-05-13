@@ -145,8 +145,9 @@ void renderSimulation(unsigned int shaderProgram, Coords cityCoords) {
     glUseProgram(shaderProgram);
     glm::mat4 mvp(1.0f);
     // mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
-    mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
-    mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
+    mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 2.0f)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
+    mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 2.0f)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
+    if ((float)glfwGetTime() / 2.0f >= 1.0f && (float)glfwGetTime() / 2.0f >= 1.0f) mvp = glm::scale(glm::mat4(1.0f), glm::vec3(std::min((float)glfwGetTime() / 2.0f, 3.0f), std::min((float)glfwGetTime() / 2.0f, 3.0f), 1.0f)) * mvp;
     GLuint mvpMatrix = glGetUniformLocation(shaderProgram, "MVP");
     glUniformMatrix4fv(mvpMatrix, 1, GL_FALSE, &mvp[0][0]);
     glActiveTexture(GL_TEXTURE0);
