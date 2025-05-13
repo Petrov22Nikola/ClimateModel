@@ -9,6 +9,9 @@
 #include <core/dataScanner.h>
 
 const int epochTime = 1900, monthOffset = 1;
+const double latSteps = 180.0, longSteps = 360.0;
+
+CURLM *multi = curl_multi_init();
 
 // Curl thermal PNG received data write callback
 size_t thermal_write_callback(char *ptr, size_t size, size_t nmemb, void *userdata) {
@@ -65,8 +68,8 @@ void thermalData(tm date) {
 
 void weatherData(double latitude, double longitude) {
     // Avoid fetching duplicate data
-    std::ifstream weatherFile("weatherData.txt");
-    if (weatherFile.good()) return;
+    std::fstream weatherFile("weatherData.txt");
+    // if (weatherFile.good()) return;
     std::ostringstream oss;
     oss << "https://api.open-meteo.com/v1/forecast?"
         << "latitude=" 
@@ -93,14 +96,44 @@ void weatherData(double latitude, double longitude) {
         CURLcode res;
         curl_easy_setopt(curlHandle, CURLOPT_URL, weatherLink.c_str());
         curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, &weather_write_callback);
-        res = curl_easy_perform(curlHandle);
-        if (res == CURLE_OK) {
-            std::cout << "Curl weather query executed successfully." << std::endl;
-        } else {
-            std::cout << "Curl weather query encountered an error: " << res << std::endl;
-        }
-        curl_easy_cleanup(curlHandle);
+        curl_multi_add_handle(multi, curlHandle);
     }
+}
+
+void localeWeatherData(double apiLat, double apiLong) {
+    const int apiRateLimit = 400; // Empirical rate limit
+    const double degreeDist = 1.0;
+    int rateRoot = (int)sqrt(apiRateLimit) / 2;
+    const double degreeOffset = degreeDist / (double)rateRoot;
+    for (int latitude = -rateRoot; latitude < rateRoot; ++latitude) {
+        for (int longitude = -rateRoot; longitude < rateRoot; ++longitude) {
+            weatherData(apiLat + latitude * degreeOffset, apiLong + longitude * degreeOffset);
+        }
+    }
+    int numTransfers, numOk = 0, numFailed = 0;
+    // Perform multiple transfers
+    CURLMcode mc = curl_multi_perform(multi, &numTransfers);
+    while (numTransfers > 0)
+    {
+        int numfds;
+        CURLMcode mc = curl_multi_wait(multi, nullptr, 0, 1000, &numfds);
+        curl_multi_perform(multi, &numTransfers);
+        CURLMsg *msg;
+        int msgsLeft;
+        while ((msg = curl_multi_info_read(multi, &msgsLeft))) {
+            if (msg->msg == CURLMSG_DONE) {
+                CURL *handle = msg->easy_handle;
+                if (msg->data.result == CURLE_OK) {
+                    ++numOk;
+                } else {
+                    ++numFailed;
+                }
+                curl_multi_remove_handle(multi, handle);
+                curl_easy_cleanup(handle);
+            }
+        }
+    }
+    std::cout << "Weather API Calls - Ok: " + std::to_string(numOk) + " - Failed: " << std::to_string(numFailed) << std::endl;
 }
 
 void initializeData() {
@@ -108,5 +141,5 @@ void initializeData() {
     time_t timestamp = time(&timestamp);
     struct tm datetime = *localtime(&timestamp);
     thermalData(datetime);
-    weatherData(43.4675, -79.6877);
+    localeWeatherData(43.4675, -79.6877); // Oakville
 }
