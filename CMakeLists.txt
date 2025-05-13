@@ -18,7 +18,8 @@ set(SOURCES
   src/main.cpp
   src/renderLogic/render.cpp
   src/fileReader.cpp
-  src/dataScanner.cpp)
+  src/dataScanner.cpp
+  src/coordHandler.cpp)
 add_executable(Simulation ${SOURCES})
 target_include_directories(Simulation PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include")
 find_package(OpenGL REQUIRED)

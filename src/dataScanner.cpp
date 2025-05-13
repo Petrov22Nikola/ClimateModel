@@ -6,6 +6,7 @@
 #include <iomanip>
 #include <curl/curl.h>
 
+#include <core/coordHandler.h>
 #include <core/dataScanner.h>
 
 const int epochTime = 1900, monthOffset = 1;
@@ -67,9 +68,6 @@ void thermalData(tm date) {
 }
 
 void weatherData(double latitude, double longitude) {
-    // Avoid fetching duplicate data
-    std::fstream weatherFile("weatherData.txt");
-    // if (weatherFile.good()) return;
     std::ostringstream oss;
     oss << "https://api.open-meteo.com/v1/forecast?"
         << "latitude=" 
@@ -101,6 +99,9 @@ void weatherData(double latitude, double longitude) {
 }
 
 void localeWeatherData(double apiLat, double apiLong) {
+    // Avoid fetching duplicate data
+    std::fstream weatherFile("weatherData.txt");
+    if (weatherFile.good()) return;
     const int apiRateLimit = 400; // Empirical rate limit
     const double degreeDist = 1.0;
     int rateRoot = (int)sqrt(apiRateLimit) / 2;
@@ -141,5 +142,8 @@ void initializeData() {
     time_t timestamp = time(&timestamp);
     struct tm datetime = *localtime(&timestamp);
     thermalData(datetime);
-    localeWeatherData(43.4675, -79.6877); // Oakville
+    auto cityMap = initCityCoords();
+    auto cityCoords = cityMap["Oakville"];
+    std::cout << "Oakville: " << cityCoords.latitude << " " << cityCoords.longitude << std::endl;
+    localeWeatherData(cityCoords.latitude, cityCoords.longitude); // Oakville
 }
