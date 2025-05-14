@@ -130,7 +130,7 @@ void initializeObjects() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    unsigned char *physData = stbi_load("physicalWorldMap.jpg", &width, &height, &nrChannels, 0);
+    unsigned char *physData = stbi_load("physicalMap.jpg", &width, &height, &nrChannels, 0);
     if (physData) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, physData);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -140,14 +140,14 @@ void initializeObjects() {
     stbi_image_free(physData);
 }
 
-void renderSimulation(unsigned int shaderProgram, Coords cityCoords) {
+void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool thermalView) {
     // Render planet
     glUseProgram(shaderProgram);
     glm::mat4 mvp(1.0f);
-    // mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
-    mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 2.0f)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
-    mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 2.0f)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
-    if ((float)glfwGetTime() / 2.0f >= 1.0f && (float)glfwGetTime() / 2.0f >= 1.0f) mvp = glm::scale(glm::mat4(1.0f), glm::vec3(std::min((float)glfwGetTime() / 2.0f, 3.0f), std::min((float)glfwGetTime() / 2.0f, 3.0f), 1.0f)) * mvp;
+    // mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
+    mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 10.0f)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
+    mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 10.0f)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
+    if ((float)glfwGetTime() / 10.0f >= 1.0f && (float)glfwGetTime() / 10.0f >= 1.0f) mvp = glm::scale(glm::mat4(1.0f), glm::vec3(std::min((float)glfwGetTime() - 9.0f, 15.0f), std::min((float)glfwGetTime() - 9.0f, 15.0f), 1.0f)) * mvp;
     GLuint mvpMatrix = glGetUniformLocation(shaderProgram, "MVP");
     glUniformMatrix4fv(mvpMatrix, 1, GL_FALSE, &mvp[0][0]);
     glActiveTexture(GL_TEXTURE0);
@@ -156,6 +156,7 @@ void renderSimulation(unsigned int shaderProgram, Coords cityCoords) {
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, physicalTexture);
     glUniform1i(glGetUniformLocation(shaderProgram, "physicalTexture"), 1);
+    glUniform1i(glGetUniformLocation(shaderProgram, "thermalView"), thermalView);
     glBindVertexArray(planetVAO);
     glDrawElements(GL_TRIANGLES, planetIndices.size(), GL_UNSIGNED_INT, 0);
 }

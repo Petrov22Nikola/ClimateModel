@@ -137,14 +137,14 @@ void localeWeatherData(double apiLat, double apiLong) {
     std::cout << "Weather API Calls - Ok: " + std::to_string(numOk) + " - Failed: " << std::to_string(numFailed) << std::endl;
 }
 
-Coords initializeData() {
+Coords initializeData(std::string location) {
     std::cout << "Scanning data sources." << std::endl;
     time_t timestamp = time(&timestamp);
     struct tm datetime = *localtime(&timestamp);
     thermalData(datetime);
     auto cityMap = initCityCoords();
-    auto cityCoords = cityMap["Oakville Canada"];
-    std::cout << "Oakville Canada: " << cityCoords.latitude << " " << cityCoords.longitude << std::endl;
+    auto cityCoords = cityMap[location];
+    std::cout << location << ": " << cityCoords.latitude << " " << cityCoords.longitude << std::endl;
     localeWeatherData(cityCoords.latitude, cityCoords.longitude); // Oakville
     return cityCoords;
 }

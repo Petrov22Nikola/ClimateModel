@@ -3,4 +3,4 @@
 #include <core/coordHandler.h>
 
 // Scan data sources for latest data
-Coords initializeData();
+Coords initializeData(std::string location);

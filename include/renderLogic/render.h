@@ -6,5 +6,5 @@
 #include <core/coordHandler.h>
 
 // Render Earth & associated objects
-void renderSimulation(unsigned int shaderProgram, Coords cityCoords);
+void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool thermalView);
 void initializeObjects();

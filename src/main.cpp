@@ -7,11 +7,17 @@
 
 // Globals
 const std::string filePath = __FILE__;
+bool thermalView = true;
 
 // Keyboard input
 void processInput(GLFWwindow *window) {
     if(glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+    if(glfwGetKey(window, GLFW_KEY_T) == GLFW_PRESS) {
+        thermalView = false;
+    } else {
+        thermalView = true;
+    }
 }
 
 // Framebuffer resizing
@@ -100,8 +106,16 @@ int main(int argc, char **argv) {
     // Initialize objects
     initializeObjects();
 
+    Coords cityCoords;
     // Data collection
-    auto cityCoords = initializeData();
+    if (argc == 3) {
+        std::string location = std::string(argv[1]) + " " + std::string(argv[2]);
+        cityCoords = initializeData(location);
+    } else {
+        // Default location
+        cityCoords = initializeData("Oakville Canada");
+    }
+    
 
     // Event loop
     while(!glfwWindowShouldClose(window))
@@ -110,7 +124,7 @@ int main(int argc, char **argv) {
         glClear(GL_COLOR_BUFFER_BIT);
         processInput(window);
         glfwPollEvents();
-        renderSimulation(shaderProgram, cityCoords);
+        renderSimulation(shaderProgram, cityCoords, thermalView);
         glfwSwapBuffers(window);
     }
   
