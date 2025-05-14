@@ -108,8 +108,12 @@ int main(int argc, char **argv) {
 
     Coords cityCoords;
     // Data collection
-    if (argc == 3) {
-        std::string location = std::string(argv[1]) + " " + std::string(argv[2]);
+    if (argc > 1) {
+        std::string location = "";
+        for (int i = 1; i < argc; ++i) {
+            location += std::string(argv[i]);
+            if (i != argc - 1) location += " ";
+        }
         cityCoords = initializeData(location);
     } else {
         // Default location

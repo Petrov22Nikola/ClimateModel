@@ -13,7 +13,8 @@ constexpr int longitudinalDivisor = 18;
 constexpr int latitudinalDivisor = 18;
 constexpr int dimensionality = 3;
 constexpr float PI = 3.14f;
-constexpr float longitudeCorrection = -90.0f;
+constexpr float longitudeCorrection = -89.75f;
+constexpr float loadTime = 24.0f;
 
 // Planet
 std::vector<float> planetVertices;
@@ -25,10 +26,12 @@ unsigned int planetVAO;
 unsigned int planetEBO;
 unsigned int thermalTexture;
 unsigned int physicalTexture;
+unsigned int pointVAO, pointVBO;
 
 void initializeObjects() {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_CULL_FACE);
+    glEnable(GL_PROGRAM_POINT_SIZE);
     glCullFace(GL_BACK);
     // Vertices
     planetVertices.push_back(planetNormal.x);
@@ -138,6 +141,16 @@ void initializeObjects() {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(physData);
+
+    // Point
+    float pointPos[] = { 0.0f, 0.0f, 0.0f };
+    glGenVertexArrays(1, &pointVAO);
+    glGenBuffers(1, &pointVBO);
+    glBindVertexArray(pointVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(pointPos), pointPos, GL_STATIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    glEnableVertexAttribArray(0);
 }
 
 void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool thermalView) {
@@ -149,6 +162,7 @@ void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool therma
     mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 10.0f)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
     if ((float)glfwGetTime() / 10.0f >= 1.0f && (float)glfwGetTime() / 10.0f >= 1.0f) mvp = glm::scale(glm::mat4(1.0f), glm::vec3(std::min((float)glfwGetTime() - 9.0f, 15.0f), std::min((float)glfwGetTime() - 9.0f, 15.0f), 1.0f)) * mvp;
     GLuint mvpMatrix = glGetUniformLocation(shaderProgram, "MVP");
+    glUniform1i(glGetUniformLocation(shaderProgram, "isPoint"), false);
     glUniformMatrix4fv(mvpMatrix, 1, GL_FALSE, &mvp[0][0]);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, thermalTexture);
@@ -159,4 +173,10 @@ void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool therma
     glUniform1i(glGetUniformLocation(shaderProgram, "thermalView"), thermalView);
     glBindVertexArray(planetVAO);
     glDrawElements(GL_TRIANGLES, planetIndices.size(), GL_UNSIGNED_INT, 0);
+
+    if ((float)glfwGetTime() > loadTime) {
+        glUniform1i(glGetUniformLocation(shaderProgram, "isPoint"), true);
+        glBindVertexArray(pointVAO);
+        glDrawArrays(GL_POINTS, 0, 1);
+    }
 }

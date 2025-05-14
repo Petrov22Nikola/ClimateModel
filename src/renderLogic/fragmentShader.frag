@@ -14,5 +14,4 @@ void main()
     } else {
         FragColor = texture(physicalTexture, TexCoord);
     }
-    
 }
