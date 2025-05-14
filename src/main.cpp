@@ -34,7 +34,7 @@ int main(int argc, char **argv) {
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 
     // Window
-    GLFWwindow* window = glfwCreateWindow(800, 600, "Climate Simulation", NULL, NULL);
+    GLFWwindow* window = glfwCreateWindow(1200, 900, "Climate Simulation", NULL, NULL);
     if (window == NULL)
     {
         std::cout << "Failed to create GLFW window" << std::endl;
@@ -51,7 +51,7 @@ int main(int argc, char **argv) {
     }    
 
     // Register framebuffer resizing callback & set framebuffer size
-    glViewport(0, 0, 800, 600);
+    glViewport(0, 0, 1200, 900);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
 
     // Vertex Shader
