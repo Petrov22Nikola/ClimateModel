@@ -28,7 +28,7 @@ unsigned int thermalTexture;
 unsigned int physicalTexture;
 unsigned int pointVAO, pointVBO;
 
-void initializeObjects() {
+void initializeObjects(Coords cityCoords) {
     // glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glEnable(GL_CULL_FACE);
     glEnable(GL_PROGRAM_POINT_SIZE);
@@ -115,7 +115,18 @@ void initializeObjects() {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     int width, height, nrChannels;
+    const int imgWidth = 512, imgHeight = 1024;
     unsigned char *thermalData = stbi_load("thermalImage.png", &width, &height, &nrChannels, 0);
+    int targetRow = -cityCoords.latitude / 90.0 * imgWidth + imgWidth, targetCol = cityCoords.longitude / 180.0 * imgHeight + imgHeight, targetPixelRadius = 5;
+    for (int row = 0; row < 1024; ++row) {
+        for (int col = 0; col < 2048; ++col) {
+            unsigned char* pixOffset = thermalData + (row * 2048 + col) * nrChannels;
+            if (pow(abs(targetRow - row), 2) + pow(abs(targetCol - col), 2) < pow(targetPixelRadius, 2)) {
+                pixOffset[0] = 255;
+                pixOffset[1] = 255;
+                pixOffset[2] = 255;
+            }
+        }    }
     if (thermalData) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, thermalData);
         glGenerateMipmap(GL_TEXTURE_2D);
@@ -143,24 +154,27 @@ void initializeObjects() {
     stbi_image_free(physData);
 
     // Point
-    float pointPos[] = { 0.0f, 0.0f, 0.0f };
-    glGenVertexArrays(1, &pointVAO);
-    glGenBuffers(1, &pointVBO);
-    glBindVertexArray(pointVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(pointPos), pointPos, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-    glEnableVertexAttribArray(0);
+    // float pointPos[] = { 0.0f, 0.0f, 0.0f};
+    // glGenVertexArrays(1, &pointVAO);
+    // glGenBuffers(1, &pointVBO);
+    // glBindVertexArray(pointVAO);
+    // glBindBuffer(GL_ARRAY_BUFFER, pointVBO);
+    // glBufferData(GL_ARRAY_BUFFER, sizeof(pointPos), pointPos, GL_STATIC_DRAW);
+    // glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+    // glEnableVertexAttribArray(0);
 }
 
 void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool thermalView) {
     // Render planet
     glUseProgram(shaderProgram);
     glm::mat4 mvp(1.0f);
-    // mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
+    // mvp = glm::rotate(glm::mat4(1.0f), (float)glfwGetTime(), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
     mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 10.0f)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
     mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0) * std::min(1.0f, (float)glfwGetTime() / 10.0f)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
     if ((float)glfwGetTime() / 10.0f >= 1.0f && (float)glfwGetTime() / 10.0f >= 1.0f) mvp = glm::scale(glm::mat4(1.0f), glm::vec3(std::min((float)glfwGetTime() - 9.0f, 15.0f), std::min((float)glfwGetTime() - 9.0f, 15.0f), 1.0f)) * mvp;
+    // mvp = glm::rotate(glm::mat4(1.0f), (float)((-cityCoords.longitude + longitudeCorrection) * (PI / 180.0)), glm::vec3(0.0f, 1.0f, 0.0f)) * mvp;
+    // mvp = glm::rotate(glm::mat4(1.0f), (float)(cityCoords.latitude * (PI / 180.0)), glm::vec3(1.0f, 0.0f, 0.0f)) * mvp;
+    // mvp = glm::scale(glm::mat4(1.0f), glm::vec3(15.0f, 15.0f, 1.0f)) * mvp;
     GLuint mvpMatrix = glGetUniformLocation(shaderProgram, "MVP");
     glUniform1i(glGetUniformLocation(shaderProgram, "isPoint"), false);
     glUniformMatrix4fv(mvpMatrix, 1, GL_FALSE, &mvp[0][0]);
@@ -174,9 +188,9 @@ void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool therma
     glBindVertexArray(planetVAO);
     glDrawElements(GL_TRIANGLES, planetIndices.size(), GL_UNSIGNED_INT, 0);
 
-    if ((float)glfwGetTime() > loadTime) {
-        glUniform1i(glGetUniformLocation(shaderProgram, "isPoint"), true);
-        glBindVertexArray(pointVAO);
-        glDrawArrays(GL_POINTS, 0, 1);
-    }
+    // if ((float)glfwGetTime() > loadTime) {
+    //     glUniform1i(glGetUniformLocation(shaderProgram, "isPoint"), true);
+    //     glBindVertexArray(pointVAO);
+    //     glDrawArrays(GL_POINTS, 0, 2);
+    // }
 }

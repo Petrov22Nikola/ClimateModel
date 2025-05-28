@@ -7,4 +7,4 @@
 
 // Render Earth & associated objects
 void renderSimulation(unsigned int shaderProgram, Coords cityCoords, bool thermalView);
-void initializeObjects();
+void initializeObjects(Coords cityCoords);

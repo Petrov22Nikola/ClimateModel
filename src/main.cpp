@@ -101,10 +101,7 @@ int main(int argc, char **argv) {
 
     glUseProgram(shaderProgram);
     glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);  
-    
-    // Initialize objects
-    initializeObjects();
+    glDeleteShader(fragmentShader);
 
     Coords cityCoords;
     // Data collection
@@ -119,7 +116,9 @@ int main(int argc, char **argv) {
         // Default location
         cityCoords = initializeData("Oakville Canada");
     }
-    
+
+    // Initialize objects
+    initializeObjects(cityCoords);
 
     // Event loop
     while(!glfwWindowShouldClose(window))
