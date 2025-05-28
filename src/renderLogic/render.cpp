@@ -115,9 +115,9 @@ void initializeObjects(Coords cityCoords) {
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
     int width, height, nrChannels;
-    const int imgWidth = 512, imgHeight = 1024;
+    const int imgHeight = 512, imgWidth = 1024;
     unsigned char *thermalData = stbi_load("thermalImage.png", &width, &height, &nrChannels, 0);
-    int targetRow = -cityCoords.latitude / 90.0 * imgWidth + imgWidth, targetCol = cityCoords.longitude / 180.0 * imgHeight + imgHeight, targetPixelRadius = 5;
+    int targetRow = -cityCoords.latitude / 90.0 * imgHeight + imgHeight, targetCol = cityCoords.longitude / 180.0 * imgWidth + imgWidth, targetPixelRadius = 5;
     for (int row = 0; row < 1024; ++row) {
         for (int col = 0; col < 2048; ++col) {
             unsigned char* pixOffset = thermalData + (row * 2048 + col) * nrChannels;
@@ -126,7 +126,8 @@ void initializeObjects(Coords cityCoords) {
                 pixOffset[1] = 255;
                 pixOffset[2] = 255;
             }
-        }    }
+        }    
+    }
     if (thermalData) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, thermalData);
         glGenerateMipmap(GL_TEXTURE_2D);
