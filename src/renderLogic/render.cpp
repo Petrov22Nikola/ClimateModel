@@ -5,6 +5,8 @@
 
 #include <renderLogic/render.h>
 #include <renderLogic/stb_image.h>
+#include <core/coordHandler.h>
+#include <core/dataScanner.h>
 #include <glm/glm.hpp>
 #include <glm/ext.hpp>
 
@@ -15,6 +17,7 @@ constexpr int dimensionality = 3;
 constexpr float PI = 3.14f;
 constexpr float longitudeCorrection = -89.75f;
 constexpr float loadTime = 24.0f;
+std::vector<Coords> apiCoords;
 
 // Planet
 std::vector<float> planetVertices;
@@ -122,6 +125,8 @@ void initializeObjects(Coords cityCoords) {
         for (int col = 0; col < 2048; ++col) {
             unsigned char* pixOffset = thermalData + (row * 2048 + col) * nrChannels;
             if (pow(abs(targetRow - row), 2) + pow(abs(targetCol - col), 2) < pow(targetPixelRadius, 2)) {
+                Coords coords{(double)(-row + imgHeight) / imgHeight * 90.0, (double)(col - imgWidth) / imgWidth * 180};
+                apiCoords.push_back(coords);
                 pixOffset[0] = 255;
                 pixOffset[1] = 255;
                 pixOffset[2] = 255;

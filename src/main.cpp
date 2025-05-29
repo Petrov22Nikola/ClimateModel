@@ -120,6 +120,8 @@ int main(int argc, char **argv) {
     // Initialize objects
     initializeObjects(cityCoords);
 
+    localeWeatherData(cityCoords.latitude, cityCoords.longitude);
+
     // Event loop
     while(!glfwWindowShouldClose(window))
     {

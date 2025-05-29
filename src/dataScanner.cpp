@@ -11,6 +11,7 @@
 
 const int epochTime = 1900, monthOffset = 1;
 const double latSteps = 180.0, longSteps = 360.0;
+extern std::vector<Coords> apiCoords;
 
 CURLM *multi = curl_multi_init();
 
@@ -106,9 +107,16 @@ void localeWeatherData(double apiLat, double apiLong) {
     const double degreeDist = 1.0;
     int rateRoot = (int)sqrt(apiRateLimit) / 2;
     const double degreeOffset = degreeDist / (double)rateRoot;
-    for (int latitude = -rateRoot; latitude < rateRoot; ++latitude) {
-        for (int longitude = -rateRoot; longitude < rateRoot; ++longitude) {
-            weatherData(apiLat + latitude * degreeOffset, apiLong + longitude * degreeOffset);
+    if (!apiCoords.empty()) {
+        for (int latitude = -rateRoot; latitude < rateRoot; ++latitude) {
+            for (int longitude = -rateRoot; longitude < rateRoot; ++longitude) {
+                weatherData(apiLat + latitude * degreeOffset, apiLong + longitude * degreeOffset);
+            }
+        }
+    } else {
+        std::cout << "Using API-Coords data." << std::endl;
+        for (auto apiCoord : apiCoords) {
+            weatherData(apiCoord.latitude, apiCoord.longitude);
         }
     }
     int numTransfers, numOk = 0, numFailed = 0;
@@ -145,6 +153,5 @@ Coords initializeData(std::string location) {
     auto cityMap = initCityCoords();
     auto cityCoords = cityMap[location];
     std::cout << location << ": " << cityCoords.latitude << " " << cityCoords.longitude << std::endl;
-    localeWeatherData(cityCoords.latitude, cityCoords.longitude); // Oakville
     return cityCoords;
 }
